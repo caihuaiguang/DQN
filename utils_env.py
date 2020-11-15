@@ -33,15 +33,15 @@ HTML_TEMPLATE = """<video alt="{alt}" autoplay loop controls style="height: 400p
 class MyEnv(object):
 
     def __init__(self, device: TorchDevice) -> None:
-        env_raw = make_atari("BreakoutNoFrameskip-v4")
+        env_raw = make_atari("BreakoutNoFrameskip-v4") # 代表要执行atari中的哪个游戏环境。BreakoutNoFrameskip-v4，即“打砖块”。
         self.__env_train = wrap_deepmind(env_raw, episode_life=True)
         env_raw = make_atari("BreakoutNoFrameskip-v4")
         self.__env_eval = wrap_deepmind(env_raw, episode_life=True)
         self.__env = self.__env_train
         self.__device = device
 
-    def reset(
-            self,
+    def reset(         # 在Python类中规定，函数的第一个参数是实例对象本身，并且约定俗成，把其名字写为self。
+            self,      # 相当于c++ this
             render: bool = False,
     ) -> Tuple[List[TensorObs], float, List[GymImg]]:
         """reset resets and initializes the underlying gym environment."""
@@ -64,15 +64,15 @@ class MyEnv(object):
         """step forwards an action to the environment and returns the newest
         observation, the reward, and an bool value indicating whether the
         episode is terminated."""
-        action = action + 1 if not action == 0 else 0
-        obs, reward, done, _ = self.__env.step(action)
+        action = action + 1 if not action == 0 else 0  #为何+1？
+        obs, reward, done, _ = self.__env.step(action) # 40行，self.__env=wrap_deepmind(env_raw, episode_life=True)
         return self.to_tensor(obs), reward, done
 
     def get_frame(self) -> GymImg:
         """get_frame renders the current game frame."""
         return Image.fromarray(self.__env.render(mode="rgb_array"))
 
-    @staticmethod
+    @staticmethod  # 静态方法无需实例化，便可调用
     def to_tensor(obs: GymObs) -> TensorObs:
         """to_tensor converts an observation to a torch tensor."""
         return torch.from_numpy(obs).view(1, 84, 84)
@@ -100,7 +100,7 @@ class MyEnv(object):
         return torch.cat(list(obs_queue)[1:]).unsqueeze(0)
 
     @staticmethod
-    def make_folded_state(obs_queue: deque) -> TensorStack5:
+    def make_folded_state(obs_queue: deque) -> TensorStack5:#格式转换？
         """make_folded_state makes up an n_state given an obs queue."""
         return torch.cat(list(obs_queue)).unsqueeze(0)
 

@@ -22,7 +22,7 @@ class ReplayMemory(object):
             channels: int,
             capacity: int,
             device: TorchDevice,
-    ) -> None:
+    ) -> None:#初始化
         self.__device = device
         self.__capacity = capacity
         self.__size = 0
@@ -46,8 +46,8 @@ class ReplayMemory(object):
         self.__m_rewards[self.__pos, 0] = reward
         self.__m_dones[self.__pos, 0] = done
 
-        self.__pos = (self.__pos + 1) % self.__capacity
-        self.__size = max(self.__size, self.__pos)
+        self.__pos = (self.__pos + 1) % self.__capacity # 先进先出，应该是队列，循环队列
+        self.__size = max(self.__size, self.__pos)      # 循环队列中现在的元素个数
 
     def sample(self, batch_size: int) -> Tuple[
             BatchState,
@@ -56,9 +56,9 @@ class ReplayMemory(object):
             BatchNext,
             BatchDone,
     ]:
-        indices = torch.randint(0, high=self.__size, size=(batch_size,))
-        b_state = self.__m_states[indices, :4].to(self.__device).float()
-        b_next = self.__m_states[indices, 1:].to(self.__device).float()
+        indices = torch.randint(0, high=self.__size, size=(batch_size,)) # 随机数
+        b_state = self.__m_states[indices, :4].to(self.__device).float() # 一共5个,前四个作为state
+        b_next = self.__m_states[indices, 1:].to(self.__device).float() # 后四个作为next_state
         b_action = self.__m_actions[indices].to(self.__device)
         b_reward = self.__m_rewards[indices].to(self.__device).float()
         b_done = self.__m_dones[indices].to(self.__device).float()
