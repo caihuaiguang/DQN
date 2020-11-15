@@ -1,4 +1,4 @@
-DQN for Breakout
+Dueling_DQN for Breakout
 ================
 
 This project is modified from https://github.com/lukeluocn/dqn-breakout
